@@ -2,7 +2,21 @@ const KEYPATH = "/etc/letsencrypt/live/charlescool.xyz/privkey.pem";
 const CERTPATH = "/etc/letsencrypt/live/charlescool.xyz/fullchain.pem";
 
 const fs = require('fs')
-const aedes = require('aedes')()
+const redis = require('mqemitter-redis')
+const mq = redis({
+ port: 6379,
+ host: '127.0.0.1',
+ password: 'tentacles',
+ db: 4
+})
+const aedes = require('aedes')(
+ {
+  concurrency: 1000000,
+  queueLimit: 5000000,
+  connectTimeout: 3000000,
+  mq: mq
+ }
+)
 const ws = require('websocket-stream')
 const https = require('https');
 const tcpPort = 7070
@@ -47,9 +61,5 @@ aedes.on('client', function (client) {
 aedes.on('clientDisconnect', function (client) {
  console.log('Client Disconnected: \x1b[31m' + (client ? client.id : client) + '\x1b[0m', 'to broker', aedes.id)
 })
-
-// aedes.on('publish', async function (packet, client) {
-//  console.log('Client \x1b[31m' + (client ? client.id : 'BROKER_' + aedes.id) + '\x1b[0m has published', packet.payload.toString(), 'on', packet.topic, 'to broker', aedes.id)
-// })
 
 
