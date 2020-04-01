@@ -3,6 +3,7 @@ const CERTPATH = "/etc/letsencrypt/live/charlescool.xyz/fullchain.pem";
 
 const fs = require('fs')
 const aedes = require('aedes')()
+const ws = require('websocket-stream')
 const sslPort = 8883
 const tcpPort = 8882
 
@@ -11,14 +12,10 @@ const options = {
  cert: fs.readFileSync(CERTPATH)
 }
 
-const server = require('tls').createServer(options, aedes.handle)
+const server = require('tls').createServer(options)
+
+ws.createServer({ server }, aedes.handle)
 
 server.listen(sslPort, function () {
  console.log('server started and listening on sslPort ', sslPort)
-})
-
-const tcpserver = require('net').createServer(aedes.handle)
-
-tcpserver.listen(tcpPort, function () {
- console.log('server started and listening on tcpPort ', tcpPort)
 })
