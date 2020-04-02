@@ -11,9 +11,9 @@ const mq = redis({
 })
 const aedes = require('aedes')(
  {
-  concurrency: 1000000,
-  queueLimit: 5000000,
-  connectTimeout: 3000000,
+  concurrency: 100000,
+  queueLimit: 5000,
+  connectTimeout: 30000,
   mq: mq
  }
 )
