@@ -1,0 +1,19 @@
+version: "2.2"
+services:
+    redis:
+        image: "redis:alpine"
+    aedes_broker:
+        container_name: aedes_mqtt_broker
+        # restart: always
+        build: .
+        ports:
+            - "8120:8120"
+            - "7070:7070"
+        environment:
+            KEY_NAME: privkey.pem
+            CERT_NAME: fullchain.pem
+            REDIS_HOST: redis
+        volumes:
+            - /root/cred:/usr/src/credentials
+        depends_on:
+            - redis
