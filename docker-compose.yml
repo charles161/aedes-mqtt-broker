@@ -3,9 +3,8 @@ services:
     redis:
         image: "redis:alpine"
     aedes_broker:
-        container_name: aedes_mqtt_broker
-        # restart: always
-        build: .
+        image: charles161/aedes_mqtt_broker:latest
+        restart: always
         ports:
             - "8120:8120"
             - "7070:7070"
