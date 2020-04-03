@@ -4,6 +4,8 @@ services:
         image: "redis:alpine"
     aedes_b:
         build: ./aedes/
+        environment:
+            REDIS_HOST: redis
         volumes:
             - app-volume:/usr/src/app
     tcp_b:
@@ -17,5 +19,20 @@ services:
         depends_on:
             - redis
             - aedes_b
+    wss_b:
+        build: ./wss/
+        environment:
+            REDIS_HOST: redis
+            KEY_NAME: privkey.pem
+            CERT_NAME: fullchain.pem
+        ports:
+            - "8111:8111"
+        volumes:
+            - app-volume:/usr/src/aedes
+            - /root/aedesBroker:/usr/src/credentials
+        depends_on:
+            - redis
+            - aedes_b
+            - tcp_b
 volumes:
     app-volume:
