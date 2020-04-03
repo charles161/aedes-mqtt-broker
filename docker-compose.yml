@@ -2,17 +2,20 @@ version: "2.2"
 services:
     redis:
         image: "redis:alpine"
-    aedes_broker:
-        image: charles161/aedes_mqtt_broker:latest
-        restart: always
-        ports:
-            - "8120:8120"
-            - "7070:7070"
-        environment:
-            KEY_NAME: privkey.pem
-            CERT_NAME: fullchain.pem
-            REDIS_HOST: redis
+    aedes_b:
+        build: ./aedes/
         volumes:
-            - /root/cred:/usr/src/credentials
+            - app-volume:/usr/src/app
+    tcp_b:
+        build: ./tcp/
+        environment:
+            REDIS_HOST: redis
+        ports:
+            - "7111:7111"
+        volumes:
+            - app-volume:/usr/src/aedes
         depends_on:
             - redis
+            - aedes_b
+volumes:
+    app-volume:
