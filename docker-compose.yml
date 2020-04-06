@@ -3,7 +3,7 @@ services:
     redis:
         image: "redis:alpine"
     aedes_b:
-        build: charles161/aedes_mqtt_broker:latest
+        image: charles161/aedes_mqtt_broker:latest
         restart: always
         environment:
             REDIS_HOST: redis
