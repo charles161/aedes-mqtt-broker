@@ -3,25 +3,29 @@ const aedesPersistenceRedis = require("aedes-persistence-redis");
 const ws = require("websocket-stream");
 const https = require("https");
 const fs = require("fs");
-const KEYPATH = "/usr/src/credentials/" + process.env.KEY_NAME || "privkey.pem";
-const CERTPATH = "/usr/src/credentials/" + process.env.CERT_NAME || "fullchain.pem";
+const KEYPATH = process.env.ROOT_PATH || "/usr/src/credentials/" + process.env.KEY_NAME || "privkey.pem";
+const CERTPATH = process.env.ROOT_PATH || "/usr/src/credentials/" + process.env.CERT_NAME || "fullchain.pem";
 
 const wssPort = 8120;
 const tcpPort = 7070;
 
 function init() {
-  const mq = redis({
-    host: process.env.REDIS_HOST,
-    port: process.env.REDIS_PORT || 6379
-  });
-  const persistence = aedesPersistenceRedis({
-    port: process.env.REDIS_PORT || 6379,
-    host: process.env.REDIS_HOST,
-    family: 4,
-    packetTTL: function(packet) {
-      return 10;
-    }
-  });
+  let mq, persistence;
+  if (process.env.REDIS_HOST) {
+    mq = redis({
+      host: process.env.REDIS_HOST,
+      port: process.env.REDIS_PORT || 6379
+    });
+    persistence = aedesPersistenceRedis({
+      port: process.env.REDIS_PORT || 6379,
+      host: process.env.REDIS_HOST,
+      family: 4,
+      packetTTL: function(packet) {
+        return 10;
+      }
+    });
+  }
+
   const aedes = require("aedes")({
     concurrency: process.env.CONCURRENCY || 10000,
     queueLimit: process.env.QUEUE_LIMIT || 100,
@@ -56,8 +60,8 @@ function init() {
       console.log("Zero Auth", client.id);
       callback(null, true);
     },
-    mq,
-    persistence
+    mq: mq || null,
+    persistence: persistence || null
   });
 
   aedes.on("subscribe", function(subscriptions, client) {
