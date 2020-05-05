@@ -146,6 +146,5 @@ function initWsServer(aedes) {
 
 let aedes = init();
 initTcpServer(aedes);
-
-if (process.env.WSS_ENABLED == "true") initWssServer(aedes);
 if (process.env.WS_ENABLED == "true") initWsServer(aedes);
+if (process.env.WSS_ENABLED == "true") initWssServer(aedes);

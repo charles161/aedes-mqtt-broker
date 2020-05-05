@@ -20,13 +20,15 @@ This library creates an MQTT Broker on your machine and allows for **tcp** and *
 7. QUEUE_LIMIT: This is the maximum number of queued messages before client session is established. Defaults to **100**.
 8. CONNECTION_TIMEOUT: The maximum waiting time in milliseconds. Defaults to **30000**.
 9. AUTH_USERNAME: Enables username authentication if specified. (Standalone without AUTH_PASSWORD)
-10. AUTH_PASSWORD: Enable password authentication if specified. (Works along with AUTH_USERNAME)
+10. AUTH_PASSWORD: Enables password authentication if specified. (Works along with AUTH_USERNAME)
+11. WS_ENABLED: Set **true** to run Websocket server on port 8110.
+12. ROOT_PATH: Sets the base path of the WSS credentials. Defaults to **/usr/src/credentials**
 
--   The path of the credentials defaults to /usr/src/redentials. You can modify the path in the file aedes.js
+-   The path of the credentials defaults to /usr/src/redentials. You can modify the path in the file aedes.js or if using docker you can set the env var ROOT_PATH
 
 ## Redis
 
-A redis server either running locally or remotely is essential for this broker. Setup one using [this].
+A redis server either running locally or remotely can be used for this broker. To setup one locally [click].
 
 ## Setup locally
 
@@ -37,11 +39,14 @@ A redis server either running locally or remotely is essential for this broker. 
 ```bash
 cd aedes
 npm install
-REDIS_HOST=<redis-host> REDIS_PORT=<redis-port> node aedes.js
+REDIS_HOST=<redis-host> REDIS_PORT=<redis-port> node aedes.js # If redis is setup
+WS_ENABLED=true node aedes.js # To enable WebSocket Server on Port 8110
+WSS_ENABLED=true KEY_NAME=<path-to-key> CERT_NAME=<path-to-cert> node aedes.js # To enable WSS Server on Port 8120
 ```
 
--   The server would be open for TCP connections on Port 7070
+-   The server would be open for TCP connections on Port 7070 by default
 -   If WSS is enabled via env vars , WSS connections would be open on Port 8120
+-   If WS is enabled via env vars, WS connections would be open on Port 8110
 
 ## Setup using Docker Image
 
@@ -54,7 +59,8 @@ version: "2.2"
 services:
     redis:
         image: "redis:alpine"
-    aedes_b:
+        restart: always
+    aedes_broker:
         image: charles161/aedes_mqtt_broker:latest
         restart: always
         environment:
@@ -62,11 +68,13 @@ services:
             AUTH_USERNAME: someuser
             AUTH_PASSWORD: somepassword
             WSS_ENABLED: "true"
+            WS_ENABLED: "true"
             KEY_NAME: privkey.pem
             CERT_NAME: fullchain.pem
         ports:
             - "7070:7070" #tcp
             - "8120:8120" #wss
+            - "8110:8110" #ws
         volumes:
             - /root/aedesBroker:/usr/src/credentials
         depends_on:
@@ -78,4 +86,4 @@ services:
 [aedes]: https://github.com/moscajs/aedes
 [websocket-stream]: https://www.npmjs.com/package/websocket-stream
 [here]: https://hub.docker.com/r/charles161/aedes_mqtt_broker
-[this]: https://redis.io/topics/quickstart.
+[click]: https://redis.io/topics/quickstart.

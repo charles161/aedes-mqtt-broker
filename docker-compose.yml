@@ -1,21 +1,24 @@
 version: "2.2"
 services:
-  redis:
-    image: "redis:alpine"
-  aedes_b:
-    image: charles161/aedes_mqtt_broker:latest
-    restart: always
-    environment:
-      REDIS_HOST: redis
-      AUTH_USERNAME: someuser
-      AUTH_PASSWORD: somepassword
-      WSS_ENABLED: "true"
-      KEY_NAME: privkey.pem
-      CERT_NAME: fullchain.pem
-    ports:
-      - "7070:7070" #tcp
-      - "8120:8120" #wss
-    volumes:
-      - /root/aedesBroker:/usr/src/credentials
-    depends_on:
-      - redis
+    redis:
+        image: "redis:alpine"
+        restart: always
+    aedes_broker:
+        image: charles161/aedes_mqtt_broker:latest
+        restart: always
+        environment:
+            REDIS_HOST: redis
+            AUTH_USERNAME: someuser
+            AUTH_PASSWORD: somepassword
+            WSS_ENABLED: "true"
+            WS_ENABLED: "true"
+            KEY_NAME: privkey.pem
+            CERT_NAME: fullchain.pem
+        ports:
+            - "7070:7070" #tcp
+            - "8120:8120" #wss
+            - "8110:8110" #ws
+        volumes:
+            - /root/aedesBroker:/usr/src/credentials
+        depends_on:
+            - redis
