@@ -1,6 +1,6 @@
 # Aedes MQTT Broker
 
-This library creates an MQTT Broker on your machine and allows for **tcp** and **wss** connections using Aedes.
+This library creates an MQTT Broker on your machine and allows for **TCP**,**WS** and **WSS** connections using Aedes.
 
 ## Libraries Used
 
