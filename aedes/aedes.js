@@ -2,12 +2,14 @@ const redis = require("mqemitter-redis");
 const aedesPersistenceRedis = require("aedes-persistence-redis");
 const ws = require("websocket-stream");
 const https = require("https");
+const http = require("http");
 const fs = require("fs");
 const KEYPATH = process.env.ROOT_PATH || "/usr/src/credentials/" + process.env.KEY_NAME || "privkey.pem";
 const CERTPATH = process.env.ROOT_PATH || "/usr/src/credentials/" + process.env.CERT_NAME || "fullchain.pem";
 
 const wssPort = 8120;
 const tcpPort = 7070;
+const wsPort = 8110;
 
 function init() {
   let mq, persistence;
@@ -125,7 +127,25 @@ function initWssServer(aedes) {
   }
 }
 
-let aedes = init();
+function initWsServer(aedes) {
+  if (!aedes.id) {
+    console.log("Aedes not initialised");
+    return;
+  }
+  try {
+    const httpServer = http.createServer();
+    ws.createServer({ server: httpServer }, aedes.handle);
+    httpServer.listen(wsPort, function() {
+      console.log("Websocket server listening on port ", wsPort);
+    });
+  } catch (error) {
+    console.log("Couldn't start server; Error: ", error);
+    return;
+  }
+}
 
+let aedes = init();
 initTcpServer(aedes);
+
 if (process.env.WSS_ENABLED == "true") initWssServer(aedes);
+if (process.env.WS_ENABLED == "true") initWsServer(aedes);
